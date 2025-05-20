@@ -24,18 +24,11 @@ namespace MatchingPairsGame
 
         private void InitializeGame()
         {
-            // Определяем пары чисел (вместо изображений)
-            _cardValues = new List<int> { 1, 2, 3, 4, 1, 2, 3, 4 }; // Пример: 4 пары
+            _cardValues = new List<int> { 1, 2, 3, 4, 1, 2, 3, 4 };
             Random rng = new Random();
             _cardValues = _cardValues.OrderBy(a => rng.Next()).ToList();
-
-            // Создаем кнопки
             CardGrid.ItemsSource = _cardValues;
-
-            // Ожидаем пока ItemsControl закончит генерацию элементов
             CardGrid.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
-
-            // Сохраняем ссылки на кнопки
             _buttons = new List<Button>();
             for (int i = 0; i < CardGrid.Items.Count; i++)
             {
@@ -51,7 +44,6 @@ namespace MatchingPairsGame
             }
         }
 
-        // Вспомогательная функция для поиска дочернего элемента определенного типа в визуальном дереве
         private T? FindVisualChild<T>(DependencyObject obj) where T : DependencyObject
         {
             for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
@@ -79,39 +71,35 @@ namespace MatchingPairsGame
 
             if (clickedButton.Tag == "Flipped" || !clickedButton.IsEnabled) return;
 
-            clickedButton.Tag = "Flipped"; // Помечаем как перевернутую
+            clickedButton.Tag = "Flipped";
 
             if (_firstClicked == null)
             {
                 _firstClicked = clickedButton;
-                UpdateMoveCount(); // Увеличиваем счетчик ходов только когда переворачиваем вторую карточку.
+                UpdateMoveCount();
             }
             else
             {
                 UpdateMoveCount();
-                // Проверяем совпадение
                 if (_firstClicked.Content.Equals(clickedButton.Content))
                 {
-                    // Совпадение
                     _firstClicked.IsEnabled = false;
                     clickedButton.IsEnabled = false;
                     _firstClicked = null;
 
-                    // Проверяем, все ли пары найдены
                     if (_buttons.All(b => !b.IsEnabled))
                     {
                         MessageBox.Show($"Вы выиграли за {_moveCount} ходов!");
-                        InitializeGame(); // Перезапуск игры
+                        InitializeGame();
                     }
                 }
                 else
                 {
-                    // Нет совпадения
-                    await Task.Delay(500); // Пауза
+                    await Task.Delay(500);
 
-                    _firstClicked.Tag = null; // Скрываем первую
-                    clickedButton.Tag = null; // Скрываем вторую
-                    _firstClicked = null; // Сбрасываем
+                    _firstClicked.Tag = null;
+                    clickedButton.Tag = null;
+                    _firstClicked = null;
                 }
             }
         }
